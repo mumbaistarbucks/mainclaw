@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Bot, Settings, Network, BookOpen, LayoutDashboard } from "lucide-react"
+import { Bot, Settings, Network, Shield, LayoutDashboard } from "lucide-react"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -12,7 +12,7 @@ export function Sidebar() {
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/agents", icon: Bot, label: "Agents" },
     { href: "/multi-agent", icon: Network, label: "Multi-Agent" },
-    { href: "/agent-rules", icon: BookOpen, label: "Agent Rules" },
+    { href: "/agent-rules", icon: Shield, label: "Controls" },
     { href: "/settings", icon: Settings, label: "Settings" },
   ]
 
