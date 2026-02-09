@@ -1,0 +1,643 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Splinter colors */
+  --splinter-navy: #1b2937;
+  --splinter-red: #ff3621;
+  --splinter-blue: #2e71e5;
+  --splinter-green: #00c07f;
+
+  /* White and gray scale for clear separation */
+  --splinter-white: #ffffff;
+  --splinter-gray-50: #f9fafb;
+  --splinter-gray-100: #f3f4f6;
+  --splinter-gray-200: #e5e7eb;
+  --splinter-gray-300: #d1d5db;
+  --splinter-gray-400: #9ca3af;
+  --splinter-gray-500: #6b7280;
+  --splinter-gray-600: #4b5563;
+  --splinter-gray-700: #374151;
+  --splinter-gray-800: #1f2937;
+  --splinter-gray-900: #111827;
+
+  /* Font sizes */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+
+  /* Font weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* New colors */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Ensure consistent font usage across all components */
+body,
+.databricks-layout,
+.databricks-navbar,
+.databricks-sidebar,
+.databricks-content,
+.databricks-page-header,
+.databricks-tabs,
+.databricks-filters,
+.databricks-table,
+.databricks-empty-state,
+.databricks-button,
+.databricks-status,
+.databricks-card {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}
+
+/* Splinter layout */
+.databricks-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Splinter top navbar */
+.databricks-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background-color: var(--splinter-navy);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 50;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.databricks-navbar-logo {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+  margin-left: -8px;
+}
+
+.databricks-navbar-search {
+  flex: 1;
+  max-width: 600px;
+  position: relative;
+  margin: 0 16px;
+}
+
+.databricks-navbar-search input {
+  width: 100%;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  padding: 0 12px 0 32px;
+  color: white;
+  font-size: 14px;
+}
+
+.databricks-navbar-search input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.databricks-navbar-search svg {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.databricks-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.databricks-navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Splinter sidebar */
+.databricks-sidebar {
+  position: fixed;
+  top: 48px; /* Below navbar */
+  left: 0;
+  bottom: 0;
+  width: 48px;
+  background-color: var(--splinter-navy);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+}
+
+.databricks-sidebar-item {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.databricks-sidebar-item:hover {
+  color: rgba(255, 255, 255, 1);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.databricks-sidebar-item.active {
+  color: rgba(255, 255, 255, 1);
+}
+
+.databricks-sidebar-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--splinter-red);
+}
+
+/* Main content area */
+.databricks-content {
+  margin-left: 48px;
+  margin-top: 48px;
+  padding: 24px;
+  width: calc(100% - 48px);
+  min-height: calc(100vh - 48px);
+  background-color: var(--card);
+}
+
+/* Page header */
+.databricks-page-header {
+  margin-bottom: 24px;
+  background-color: var(--card);
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.databricks-page-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--card-foreground);
+}
+
+/* Tabs */
+.databricks-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+  background-color: var(--card);
+  padding: 0 16px;
+  border-radius: 6px 6px 0 0;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.databricks-tab {
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.databricks-tab:hover {
+  color: var(--foreground);
+}
+
+.databricks-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Filters */
+.databricks-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  background-color: var(--card);
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.databricks-filter {
+  position: relative;
+}
+
+.databricks-filter input {
+  height: 36px;
+  padding: 0 12px 0 32px;
+  border: 1px solid var(--input);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+}
+
+.databricks-filter input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(46, 113, 229, 0.2);
+}
+
+.databricks-filter-dropdown {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--input);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  background-color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.databricks-filter-dropdown:hover {
+  border-color: var(--border);
+}
+
+/* Table */
+.databricks-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.databricks-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--splinter-gray-700);
+  background-color: var(--splinter-gray-100);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.databricks-table th:first-child {
+  border-left: 1px solid var(--border);
+  border-top-left-radius: 6px;
+}
+
+.databricks-table th:last-child {
+  border-right: 1px solid var(--border);
+  border-top-right-radius: 6px;
+}
+
+.databricks-table td {
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--border);
+  background-color: white;
+}
+
+.databricks-table tr:last-child td:first-child {
+  border-left: 1px solid var(--border);
+  border-bottom-left-radius: 6px;
+}
+
+.databricks-table tr:last-child td:last-child {
+  border-right: 1px solid var(--border);
+  border-bottom-right-radius: 6px;
+}
+
+.databricks-table tr td:first-child {
+  border-left: 1px solid var(--border);
+}
+
+.databricks-table tr td:last-child {
+  border-right: 1px solid var(--border);
+}
+
+.databricks-table tr:hover td {
+  background-color: var(--splinter-gray-50);
+}
+
+/* Empty state */
+.databricks-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  text-align: center;
+  background-color: var(--card);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.databricks-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: var(--muted-foreground);
+}
+
+.databricks-empty-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--splinter-gray-700);
+  margin-bottom: 8px;
+}
+
+.databricks-empty-description {
+  font-size: 14px;
+  color: var(--splinter-gray-500);
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+/* Buttons */
+.databricks-button {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.databricks-button-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.databricks-button-primary:hover {
+  background-color: #1d5bbf;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.databricks-button-secondary {
+  background-color: var(--card);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.databricks-button-secondary:hover {
+  background-color: var(--card-foreground);
+  border-color: var(--border);
+}
+
+/* Status indicators */
+.databricks-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.databricks-status-success {
+  color: var(--splinter-green);
+}
+
+.databricks-status-error {
+  color: var(--splinter-red);
+}
+
+/* Cards */
+.databricks-card {
+  background-color: var(--card);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.databricks-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--splinter-gray-50);
+}
+
+.databricks-card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--card-foreground);
+}
+
+.databricks-card-content {
+  padding: 20px;
+  background-color: white;
+}
+
+/* Grid layout */
+.databricks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.status-badge-success {
+  background-color: rgba(0, 192, 127, 0.15);
+  color: var(--splinter-green);
+  border: 1px solid rgba(0, 192, 127, 0.3);
+}
+
+.status-badge-error {
+  background-color: rgba(255, 54, 33, 0.15);
+  color: var(--splinter-red);
+  border: 1px solid rgba(255, 54, 33, 0.3);
+}
+
+/* Standardize headings */
+h1,
+.h1,
+.databricks-page-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+}
+
+h2,
+.h2,
+.databricks-card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+
+h3,
+.h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+}
+
+/* Standardize text elements */
+.text-xs,
+.databricks-table th,
+.status-badge,
+.databricks-status {
+  font-size: var(--font-size-xs);
+}
+
+.text-sm,
+.databricks-table td,
+.databricks-filter input,
+.databricks-filter-dropdown {
+  font-size: var(--font-size-sm);
+}
+
+.text-base {
+  font-size: var(--font-size-base);
+}
+
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+
+/* Standardize font weights */
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-medium,
+.databricks-tab,
+.databricks-button {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold,
+.databricks-table th,
+.databricks-card-title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Custom utility classes for Vercel-style interactions */
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Vercel-style focus states */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(59 130 246 / 0.5);
+}
+
+/* Custom scrollbar for activity feed */
+.activity-feed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.activity-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.activity-feed::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.3);
+  border-radius: 2px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.5);
+}
