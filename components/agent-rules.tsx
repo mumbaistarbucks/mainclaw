@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
@@ -26,15 +26,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Shield,
   AlertTriangle,
-  CheckCircle,
   Play,
   Pause,
   Square,
-  RotateCcw,
   Zap,
-  Clock,
   DollarSign,
   Activity,
   Lock,
@@ -47,13 +43,9 @@ import {
   Search,
   AlertCircle,
   Bot,
-  ChevronDown,
-  ChevronRight,
   StopCircle,
   CircleDot,
-  Timer,
   MemoryStick,
-  Eye,
   ShieldAlert,
   ShieldCheck,
   ShieldOff,
@@ -62,6 +54,10 @@ import {
   Repeat,
   Undo2,
   Cloud,
+  Check,
+  X,
+  Save,
+  Gauge,
 } from "lucide-react"
 
 // Types
@@ -143,12 +139,24 @@ export function AgentRules() {
   const [showConfirmStop, setShowConfirmStop] = useState(false)
   const [confirmStopTarget, setConfirmStopTarget] = useState<string | null>(null)
   const [showGlobalStopConfirm, setShowGlobalStopConfirm] = useState(false)
+  const [showDecisionModal, setShowDecisionModal] = useState(false)
+  const [editingAgentLimits, setEditingAgentLimits] = useState<string | null>(null)
+  const [editingBreaker, setEditingBreaker] = useState<string | null>(null)
   const [newRule, setNewRule] = useState({
     name: "",
     condition: "",
     action: "block" as RuleAction,
     target: "all",
   })
+  const [newDecision, setNewDecision] = useState({
+    agent: "",
+    decision: "",
+    reason: "",
+  })
+
+  // Temp edit state for inline editing
+  const [tempLimits, setTempLimits] = useState<Record<string, any>>({})
+  const [tempBreaker, setTempBreaker] = useState<Record<string, any>>({})
 
   // --- Mock Data ---
 
@@ -539,6 +547,71 @@ export function AgentRules() {
     ))
   }
 
+  const handleAddDecision = () => {
+    if (!newDecision.agent || !newDecision.decision) return
+    setDecisions([...decisions, {
+      id: `dec-${Date.now()}`,
+      agent: newDecision.agent,
+      decision: newDecision.decision,
+      reason: newDecision.reason,
+      lockedAt: "just now",
+      locked: true,
+    }])
+    setShowDecisionModal(false)
+    setNewDecision({ agent: "", decision: "", reason: "" })
+  }
+
+  const handleDeleteDecision = (decId: string) => {
+    setDecisions(decisions.filter((d) => d.id !== decId))
+  }
+
+  // Inline limit editing
+  const startEditingLimits = (agentId: string) => {
+    const agent = agents.find((a) => a.id === agentId)
+    if (!agent) return
+    setTempLimits({
+      budgetLimit: agent.budgetLimit,
+      stepLimit: agent.stepLimit,
+      memoryLimitMb: agent.memoryLimitMb,
+      rateLimit: agent.rateLimit,
+    })
+    setEditingAgentLimits(agentId)
+  }
+
+  const saveLimits = (agentId: string) => {
+    setAgents(agents.map((a) =>
+      a.id === agentId ? {
+        ...a,
+        budgetLimit: Number(tempLimits.budgetLimit) || a.budgetLimit,
+        stepLimit: Number(tempLimits.stepLimit) || a.stepLimit,
+        memoryLimitMb: Number(tempLimits.memoryLimitMb) || a.memoryLimitMb,
+        rateLimit: Number(tempLimits.rateLimit) || a.rateLimit,
+      } : a
+    ))
+    setEditingAgentLimits(null)
+  }
+
+  const startEditingBreaker = (breakerId: string) => {
+    const breaker = breakers.find((b) => b.id === breakerId)
+    if (!breaker) return
+    setTempBreaker({
+      failureThreshold: breaker.failureThreshold,
+      timeoutSeconds: breaker.timeoutSeconds,
+    })
+    setEditingBreaker(breakerId)
+  }
+
+  const saveBreakerConfig = (breakerId: string) => {
+    setBreakers(breakers.map((b) =>
+      b.id === breakerId ? {
+        ...b,
+        failureThreshold: Number(tempBreaker.failureThreshold) || b.failureThreshold,
+        timeoutSeconds: Number(tempBreaker.timeoutSeconds) || b.timeoutSeconds,
+      } : b
+    ))
+    setEditingBreaker(null)
+  }
+
   // --- Helpers ---
 
   const getStatusColor = (status: AgentStatus) => {
@@ -569,9 +642,9 @@ export function AgentRules() {
 
   const getBreakerIcon = (state: BreakerState) => {
     switch (state) {
-      case "closed": return <ShieldCheck className="h-5 w-5 text-green-600" />
-      case "open": return <ShieldOff className="h-5 w-5 text-red-600" />
-      case "half_open": return <ShieldAlert className="h-5 w-5 text-yellow-600" />
+      case "closed": return <ShieldCheck className="h-4 w-4 text-green-600" />
+      case "open": return <ShieldOff className="h-4 w-4 text-red-600" />
+      case "half_open": return <ShieldAlert className="h-4 w-4 text-yellow-600" />
     }
   }
 
@@ -618,7 +691,7 @@ export function AgentRules() {
       {/* Top Bar */}
       <div className="flex items-center gap-3 p-2 border rounded-md bg-white">
         <div className="flex items-center gap-2 flex-1">
-          <Shield className="h-5 w-5 text-[var(--splinter-red)]" />
+          <Gauge className="h-5 w-5 text-[var(--splinter-red)]" />
           <span className="font-semibold text-sm">Control Layer</span>
           <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200" variant="outline">
             <Cloud className="h-3 w-3 mr-1" />
@@ -702,7 +775,7 @@ export function AgentRules() {
             Live Agents
           </TabsTrigger>
           <TabsTrigger value="breakers" className="text-xs gap-1.5">
-            <Shield className="h-3.5 w-3.5" />
+            <ShieldCheck className="h-3.5 w-3.5" />
             Circuit Breakers
           </TabsTrigger>
           <TabsTrigger value="rules" className="text-xs gap-1.5">
@@ -737,14 +810,16 @@ export function AgentRules() {
             <CardContent className="p-0">
               <div className="border-t">
                 {filteredAgents.map((agent) => {
+                  const isEditing = editingAgentLimits === agent.id
                   const bPct = budgetPercent(agent.budgetUsed, agent.budgetLimit)
                   const sPct = budgetPercent(agent.stepsUsed, agent.stepLimit)
                   const mPct = budgetPercent(agent.memoryUsedMb, agent.memoryLimitMb)
+                  const rPct = budgetPercent(agent.rateUsage, agent.rateLimit)
                   return (
                     <div key={agent.id} className={`border-b p-3 ${agent.status === "stopped" ? "opacity-50" : ""}`}>
                       {/* Row 1: Name, status, model, actions */}
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center gap-2 min-w-[160px]">
+                        <div className="flex items-center gap-2 min-w-[140px]">
                           <Bot className="h-4 w-4 text-gray-500" />
                           <span className="font-medium text-sm font-mono">{agent.name}</span>
                         </div>
@@ -757,11 +832,28 @@ export function AgentRules() {
                         {agent.loopDetected && (
                           <Badge className="bg-orange-100 text-orange-800 border-orange-200 animate-pulse" variant="outline">
                             <Repeat className="h-3 w-3 mr-1" />
-                            Loop Detected
+                            Loop
                           </Badge>
                         )}
                         <div className="flex-1" />
                         <div className="flex items-center gap-1">
+                          {!isEditing ? (
+                            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => startEditingLimits(agent.id)}>
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit Limits
+                            </Button>
+                          ) : (
+                            <>
+                              <Button variant="ghost" size="sm" className="h-7 text-xs text-green-600" onClick={() => saveLimits(agent.id)}>
+                                <Save className="h-3 w-3 mr-1" />
+                                Save
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setEditingAgentLimits(null)}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
+                          <Separator orientation="vertical" className="h-5 mx-1" />
                           {agent.status === "running" && (
                             <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handlePauseAgent(agent.id)}>
                               <Pause className="h-3 w-3 mr-1" />
@@ -795,7 +887,7 @@ export function AgentRules() {
                         </div>
                       </div>
 
-                      {/* Row 2: Budget, Steps, Memory, Rate bars */}
+                      {/* Row 2: Limits — editable or display */}
                       <div className="grid grid-cols-4 gap-4 pl-6">
                         {/* Budget */}
                         <div>
@@ -803,7 +895,20 @@ export function AgentRules() {
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <DollarSign className="h-3 w-3" />Budget
                             </span>
-                            <span className="text-xs font-mono">${agent.budgetUsed.toFixed(2)} / ${agent.budgetLimit.toFixed(2)}</span>
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-mono">${agent.budgetUsed.toFixed(2)} /</span>
+                                <Input
+                                  type="number"
+                                  step="0.5"
+                                  className="h-5 w-16 text-xs font-mono px-1 py-0"
+                                  value={tempLimits.budgetLimit}
+                                  onChange={(e) => setTempLimits({ ...tempLimits, budgetLimit: e.target.value })}
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs font-mono">${agent.budgetUsed.toFixed(2)} / ${agent.budgetLimit.toFixed(2)}</span>
+                            )}
                           </div>
                           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                             <div className={`h-full rounded-full transition-all ${budgetBarColor(bPct)}`} style={{ width: `${bPct}%` }} />
@@ -815,7 +920,19 @@ export function AgentRules() {
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <Hash className="h-3 w-3" />Steps
                             </span>
-                            <span className="text-xs font-mono">{agent.stepsUsed} / {agent.stepLimit}</span>
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-mono">{agent.stepsUsed} /</span>
+                                <Input
+                                  type="number"
+                                  className="h-5 w-16 text-xs font-mono px-1 py-0"
+                                  value={tempLimits.stepLimit}
+                                  onChange={(e) => setTempLimits({ ...tempLimits, stepLimit: e.target.value })}
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs font-mono">{agent.stepsUsed} / {agent.stepLimit}</span>
+                            )}
                           </div>
                           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                             <div className={`h-full rounded-full transition-all ${budgetBarColor(sPct)}`} style={{ width: `${sPct}%` }} />
@@ -827,7 +944,19 @@ export function AgentRules() {
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <MemoryStick className="h-3 w-3" />Memory
                             </span>
-                            <span className="text-xs font-mono">{agent.memoryUsedMb}MB / {agent.memoryLimitMb}MB</span>
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-mono">{agent.memoryUsedMb}MB /</span>
+                                <Input
+                                  type="number"
+                                  className="h-5 w-16 text-xs font-mono px-1 py-0"
+                                  value={tempLimits.memoryLimitMb}
+                                  onChange={(e) => setTempLimits({ ...tempLimits, memoryLimitMb: e.target.value })}
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs font-mono">{agent.memoryUsedMb}MB / {agent.memoryLimitMb}MB</span>
+                            )}
                           </div>
                           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                             <div className={`h-full rounded-full transition-all ${budgetBarColor(mPct)}`} style={{ width: `${mPct}%` }} />
@@ -839,10 +968,23 @@ export function AgentRules() {
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                               <ArrowDownUp className="h-3 w-3" />Rate
                             </span>
-                            <span className="text-xs font-mono">{agent.rateUsage} / {agent.rateLimit} /min</span>
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-mono">{agent.rateUsage} /</span>
+                                <Input
+                                  type="number"
+                                  className="h-5 w-16 text-xs font-mono px-1 py-0"
+                                  value={tempLimits.rateLimit}
+                                  onChange={(e) => setTempLimits({ ...tempLimits, rateLimit: e.target.value })}
+                                />
+                                <span className="text-xs text-gray-400">/min</span>
+                              </div>
+                            ) : (
+                              <span className="text-xs font-mono">{agent.rateUsage} / {agent.rateLimit} /min</span>
+                            )}
                           </div>
                           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-all ${budgetBarColor(budgetPercent(agent.rateUsage, agent.rateLimit))}`} style={{ width: `${budgetPercent(agent.rateUsage, agent.rateLimit)}%` }} />
+                            <div className={`h-full rounded-full transition-all ${budgetBarColor(rPct)}`} style={{ width: `${rPct}%` }} />
                           </div>
                         </div>
                       </div>
@@ -869,67 +1011,110 @@ export function AgentRules() {
         {/* ===== CIRCUIT BREAKERS TAB ===== */}
         <TabsContent value="breakers" className="mt-2">
           <div className="grid grid-cols-2 gap-3">
-            {breakers.map((breaker) => (
-              <Card key={breaker.id} className={`${breaker.state === "open" ? "border-red-300" : breaker.state === "half_open" ? "border-yellow-300" : ""}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      {getBreakerIcon(breaker.state)}
-                      <div>
-                        <div className="font-medium text-sm">{breaker.name}</div>
-                        <div className="text-xs text-gray-500 font-mono">{breaker.target}</div>
+            {breakers.map((breaker) => {
+              const isEditingThis = editingBreaker === breaker.id
+              return (
+                <Card key={breaker.id} className={breaker.state === "open" ? "border-red-300" : breaker.state === "half_open" ? "border-yellow-300" : ""}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        {getBreakerIcon(breaker.state)}
+                        <div>
+                          <div className="font-medium text-sm">{breaker.name}</div>
+                          <div className="text-xs text-gray-500 font-mono">{breaker.target}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getBreakerColor(breaker.state)} variant="outline">
+                          {getBreakerLabel(breaker.state)}
+                        </Badge>
+                        {!isEditingThis ? (
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => startEditingBreaker(breaker.id)}>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                        ) : (
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-green-600" onClick={() => saveBreakerConfig(breaker.id)}>
+                              <Check className="h-3 w-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setEditingBreaker(null)}>
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <Badge className={getBreakerColor(breaker.state)} variant="outline">
-                      {getBreakerLabel(breaker.state)}
-                    </Badge>
-                  </div>
 
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Failures</span>
-                      <span className="font-mono">{breaker.failureCount} / {breaker.failureThreshold}</span>
-                    </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${breaker.state === "open" ? "bg-red-500" : breaker.state === "half_open" ? "bg-yellow-500" : "bg-green-500"}`}
-                        style={{ width: `${budgetPercent(breaker.failureCount, breaker.failureThreshold)}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Timeout</span>
-                      <span className="font-mono">{breaker.timeoutSeconds}s</span>
-                    </div>
-                    {breaker.lastFailure && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Last failure</span>
-                        <span>{breaker.lastFailure}</span>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">Failures</span>
+                        {isEditingThis ? (
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono">{breaker.failureCount} /</span>
+                            <Input
+                              type="number"
+                              className="h-5 w-14 text-xs font-mono px-1 py-0"
+                              value={tempBreaker.failureThreshold}
+                              onChange={(e) => setTempBreaker({ ...tempBreaker, failureThreshold: e.target.value })}
+                            />
+                          </div>
+                        ) : (
+                          <span className="font-mono">{breaker.failureCount} / {breaker.failureThreshold}</span>
+                        )}
                       </div>
-                    )}
-                    {breaker.cooldownRemaining !== null && (
-                      <div className="flex justify-between text-red-600">
-                        <span>Cooldown remaining</span>
-                        <span className="font-mono">{breaker.cooldownRemaining}s</span>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${breaker.state === "open" ? "bg-red-500" : breaker.state === "half_open" ? "bg-yellow-500" : "bg-green-500"}`}
+                          style={{ width: `${budgetPercent(breaker.failureCount, breaker.failureThreshold)}%` }}
+                        />
                       </div>
-                    )}
-                  </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">Timeout</span>
+                        {isEditingThis ? (
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              className="h-5 w-14 text-xs font-mono px-1 py-0"
+                              value={tempBreaker.timeoutSeconds}
+                              onChange={(e) => setTempBreaker({ ...tempBreaker, timeoutSeconds: e.target.value })}
+                            />
+                            <span className="text-gray-400">s</span>
+                          </div>
+                        ) : (
+                          <span className="font-mono">{breaker.timeoutSeconds}s</span>
+                        )}
+                      </div>
+                      {breaker.lastFailure && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Last failure</span>
+                          <span>{breaker.lastFailure}</span>
+                        </div>
+                      )}
+                      {breaker.cooldownRemaining !== null && (
+                        <div className="flex justify-between text-red-600">
+                          <span>Cooldown remaining</span>
+                          <span className="font-mono">{breaker.cooldownRemaining}s</span>
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="mt-3 pt-3 border-t flex gap-2">
-                    {breaker.state === "open" ? (
-                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleToggleBreaker(breaker.id)}>
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        Reset Breaker
-                      </Button>
-                    ) : (
-                      <Button variant="outline" size="sm" className="flex-1 text-xs text-red-600" onClick={() => handleToggleBreaker(breaker.id)}>
-                        <ShieldOff className="h-3 w-3 mr-1" />
-                        Trip Breaker
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="mt-3 pt-3 border-t flex gap-2">
+                      {breaker.state === "open" ? (
+                        <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleToggleBreaker(breaker.id)}>
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Reset Breaker
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" className="flex-1 text-xs text-red-600" onClick={() => handleToggleBreaker(breaker.id)}>
+                          <ShieldOff className="h-3 w-3 mr-1" />
+                          Trip Breaker
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </TabsContent>
 
@@ -958,7 +1143,7 @@ export function AgentRules() {
               <div className="border-t">
                 {rules.map((rule) => (
                   <div key={rule.id} className={`border-b p-3 flex items-center gap-3 ${!rule.enabled ? "opacity-50" : ""}`}>
-                    <Switch
+                    <Checkbox
                       checked={rule.enabled}
                       onCheckedChange={() => handleToggleRule(rule.id)}
                     />
@@ -1036,10 +1221,16 @@ export function AgentRules() {
                         <td className="p-3 font-mono text-sm font-medium">{row.agentName}</td>
                         {allTools.map((tool) => (
                           <td key={tool} className="p-3 text-center">
-                            <Switch
-                              checked={row.tools[tool] || false}
-                              onCheckedChange={() => handleToggleToolAccess(row.agentId, tool)}
-                            />
+                            <button
+                              onClick={() => handleToggleToolAccess(row.agentId, tool)}
+                              className={`inline-flex items-center justify-center h-6 w-6 rounded border transition-colors ${
+                                row.tools[tool]
+                                  ? "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
+                                  : "bg-gray-50 border-gray-200 text-gray-300 hover:bg-gray-100 hover:text-gray-500"
+                              }`}
+                            >
+                              {row.tools[tool] ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+                            </button>
                           </td>
                         ))}
                       </tr>
@@ -1055,12 +1246,21 @@ export function AgentRules() {
         <TabsContent value="decisions" className="mt-2">
           <Card>
             <CardHeader className="py-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                Decision Enforcement
-                <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-                  {decisions.filter((d) => d.locked).length} locked
-                </Badge>
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  Decision Enforcement
+                  <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+                    {decisions.filter((d) => d.locked).length} locked
+                  </Badge>
+                </CardTitle>
+                <Button size="sm" onClick={() => {
+                  setNewDecision({ agent: "", decision: "", reason: "" })
+                  setShowDecisionModal(true)
+                }}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Lock Decision
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <div className="border-t">
@@ -1068,13 +1268,13 @@ export function AgentRules() {
                   <div key={dec.id} className="border-b p-3 flex items-center gap-3">
                     <button
                       onClick={() => handleToggleDecision(dec.id)}
-                      className="flex items-center justify-center h-8 w-8 rounded-md border hover:bg-gray-50 transition-colors"
+                      className={`flex items-center justify-center h-7 w-7 rounded border transition-colors ${
+                        dec.locked
+                          ? "bg-purple-100 border-purple-300 text-purple-700 hover:bg-purple-200"
+                          : "bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100"
+                      }`}
                     >
-                      {dec.locked ? (
-                        <Lock className="h-4 w-4 text-purple-600" />
-                      ) : (
-                        <Unlock className="h-4 w-4 text-gray-400" />
-                      )}
+                      {dec.locked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
                     </button>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{dec.decision}</div>
@@ -1085,6 +1285,9 @@ export function AgentRules() {
                     <Badge variant="outline" className={dec.locked ? "bg-purple-100 text-purple-800 border-purple-200" : "bg-gray-100 text-gray-600 border-gray-200"}>
                       {dec.locked ? "Locked" : "Unlocked"}
                     </Badge>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-gray-400 hover:text-red-600" onClick={() => handleDeleteDecision(dec.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -1191,6 +1394,60 @@ export function AgentRules() {
             <Button variant="outline" onClick={() => setShowRuleModal(false)}>Cancel</Button>
             <Button onClick={handleSaveRule} disabled={!newRule.name || !newRule.condition}>
               {editingRule ? "Update Rule" : "Create Rule"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Decision Modal */}
+      <Dialog open={showDecisionModal} onOpenChange={setShowDecisionModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Lock Decision</DialogTitle>
+            <DialogDescription>
+              Lock a decision so the agent cannot change its mind. Once locked, the agent must follow this decision.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Agent</Label>
+              <Select value={newDecision.agent} onValueChange={(v) => setNewDecision({ ...newDecision, agent: v })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select agent" />
+                </SelectTrigger>
+                <SelectContent>
+                  {agents.map((a) => (
+                    <SelectItem key={a.id} value={a.name}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="dec-decision">Decision</Label>
+              <Input
+                id="dec-decision"
+                value={newDecision.decision}
+                onChange={(e) => setNewDecision({ ...newDecision, decision: e.target.value })}
+                placeholder="e.g., Use PostgreSQL for data storage"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dec-reason">Reason</Label>
+              <Input
+                id="dec-reason"
+                value={newDecision.reason}
+                onChange={(e) => setNewDecision({ ...newDecision, reason: e.target.value })}
+                placeholder="e.g., Architecture decision — cannot flip-flop"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDecisionModal(false)}>Cancel</Button>
+            <Button onClick={handleAddDecision} disabled={!newDecision.agent || !newDecision.decision}>
+              <Lock className="h-4 w-4 mr-1" />
+              Lock Decision
             </Button>
           </DialogFooter>
         </DialogContent>
