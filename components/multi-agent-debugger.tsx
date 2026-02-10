@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useState, useRef, useCallback } from "react"
-import { ChevronRight, Bot, Brain, Clock, AlertTriangle, CheckCircle, XCircle, Play, Network, Search, Activity, Eye, Maximize2, Target, Lock, Circle, Share2, Info, Loader, Cloud, Pause, RefreshCw } from 'lucide-react'
+import { ChevronRight, Bot, Brain, Clock, AlertTriangle, CheckCircle, XCircle, Play, Network, Search, Activity, Eye, Maximize2, Target, Lock, Circle, Share2, Info, Loader, Cloud, Pause, RefreshCw, Radio, Shield } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -447,34 +447,34 @@ export function MultiAgentDebugger() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "active": return <Play className="h-3 w-3 text-green-600" />
-      case "bottleneck": return <AlertTriangle className="h-3 w-3 text-amber-600" />
-      case "stalled": return <XCircle className="h-3 w-3 text-red-600" />
-      case "waiting": return <Clock className="h-3 w-3 text-blue-600" />
-      case "blocked": return <Lock className="h-3 w-3 text-red-600" />
-      case "eligible": return <CheckCircle className="h-3 w-3 text-green-600" />
-      default: return <Circle className="h-3 w-3 text-gray-400" />
+      case "active": return <Play className="h-4 w-4 text-emerald-500" />
+      case "bottleneck": return <AlertTriangle className="h-4 w-4 text-amber-500" />
+      case "stalled": return <XCircle className="h-4 w-4 text-red-500" />
+      case "waiting": return <Clock className="h-4 w-4 text-blue-500" />
+      case "blocked": return <Lock className="h-4 w-4 text-red-500" />
+      case "eligible": return <CheckCircle className="h-4 w-4 text-green-500" />
+      default: return <Circle className="h-4 w-4 text-slate-400" />
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active": return <Badge className="bg-green-100 text-green-800 border-green-200" variant="outline">Active</Badge>
-      case "bottleneck": return <Badge className="bg-amber-100 text-amber-800 border-amber-200" variant="outline">Bottleneck</Badge>
-      case "stalled": return <Badge className="bg-red-100 text-red-800 border-red-200" variant="outline">Stalled</Badge>
-      case "waiting": return <Badge className="bg-blue-100 text-blue-800 border-blue-200" variant="outline">Waiting</Badge>
-      case "blocked": return <Badge className="bg-red-100 text-red-800 border-red-200" variant="outline">Blocked</Badge>
-      case "eligible": return <Badge className="bg-green-100 text-green-800 border-green-200" variant="outline">Eligible</Badge>
+      case "active": return <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">Active</Badge>
+      case "bottleneck": return <Badge className="bg-amber-100 text-amber-800 border-amber-200">Bottleneck</Badge>
+      case "stalled": return <Badge className="bg-red-100 text-red-800 border-red-200">Stalled</Badge>
+      case "waiting": return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Waiting</Badge>
+      case "blocked": return <Badge className="bg-red-100 text-red-800 border-red-200">Blocked</Badge>
+      case "eligible": return <Badge className="bg-green-100 text-green-800 border-green-200">Eligible</Badge>
       default: return <Badge variant="outline">Unknown</Badge>
     }
   }
 
   const getAgentTypeIcon = (type: string) => {
     switch (type) {
-      case "orchestrator": return <Network className="h-3.5 w-3.5 text-purple-600" />
-      case "specialist": return <Brain className="h-3.5 w-3.5 text-blue-600" />
-      case "validator": return <CheckCircle className="h-3.5 w-3.5 text-green-600" />
-      default: return <Bot className="h-3.5 w-3.5 text-gray-500" />
+      case "orchestrator": return <Network className="h-4 w-4 text-purple-600" />
+      case "specialist": return <Brain className="h-4 w-4 text-blue-600" />
+      case "validator": return <Shield className="h-4 w-4 text-green-600" />
+      default: return <Bot className="h-4 w-4 text-slate-500" />
     }
   }
 
@@ -504,7 +504,7 @@ export function MultiAgentDebugger() {
         if (nodeIndex === -1) return prev
         flowNodes[nodeIndex] = {
           ...flowNodes[nodeIndex],
-          position: { x: Math.max(0, Math.min(newX, 900)), y: Math.max(0, Math.min(newY, 650)) },
+          position: { x: Math.max(0, Math.min(newX, 1100)), y: Math.max(0, Math.min(newY, 600)) },
         }
         return newStructure
       })
@@ -532,62 +532,99 @@ export function MultiAgentDebugger() {
     const isSelected = selectedAgent?.id === node.id
     const isBeingDragged = draggedNode === node.id
 
-    const borderColor =
-      node.status === "blocked" || node.status === "stalled" ? "border-red-300" :
-      node.status === "active" ? "border-green-300" :
-      node.status === "waiting" ? "border-blue-300" :
-      "border-gray-200"
-
     return (
       <div
         key={node.id}
-        className={`absolute bg-white rounded-md border shadow-sm transition-shadow select-none ${borderColor} ${
-          isBeingDragged ? "cursor-grabbing shadow-lg z-50" : "cursor-grab hover:shadow-md"
-        } ${isSelected ? "ring-2 ring-blue-400" : ""}`}
-        style={{ left: node.position.x, top: node.position.y, width: "180px" }}
+        className={`absolute bg-white rounded-xl shadow-lg border-2 transition-all duration-200 select-none ${
+          isBeingDragged ? "cursor-grabbing scale-105 shadow-2xl z-50" : "cursor-grab hover:shadow-xl hover:scale-105"
+        } ${
+          node.status === "blocked" || node.status === "stalled"
+            ? "border-red-300 bg-gradient-to-br from-red-50 to-red-100"
+            : node.status === "active"
+              ? "border-emerald-300 bg-gradient-to-br from-emerald-50 to-emerald-100"
+              : node.status === "waiting"
+                ? "border-blue-300 bg-gradient-to-br from-blue-50 to-blue-100"
+              : "border-slate-300 bg-gradient-to-br from-slate-50 to-white"
+        } ${isSelected ? "ring-4 ring-blue-400 ring-opacity-50 scale-105" : ""}`}
+        style={{
+          left: node.position.x,
+          top: node.position.y,
+          width: "220px",
+          minHeight: "140px",
+        }}
         onMouseDown={(e) => handleMouseDown(e, node)}
         onClick={() => { if (!isDragging) setSelectedAgent(node) }}
       >
-        <div className="p-3">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="flex items-center gap-1.5">
-              {getAgentTypeIcon(node.type)}
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <div className={`p-1.5 rounded-lg ${
+                node.status === "active" ? "bg-emerald-100" :
+                node.status === "blocked" || node.status === "stalled" ? "bg-red-100" :
+                node.status === "waiting" ? "bg-blue-100" : "bg-slate-100"
+              }`}>
+                {getAgentTypeIcon(node.type)}
+              </div>
               {getStatusIcon(node.status)}
             </div>
-            {node.status === "active" && <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />}
-            {node.status === "stalled" && <AlertTriangle className="h-3 w-3 text-red-500" />}
-            {node.status === "blocked" && <Lock className="h-3 w-3 text-red-500" />}
+            <Tooltip>
+              <TooltipTrigger>
+                {node.status === "active" && <Radio className="h-4 w-4 text-emerald-500 animate-pulse" />}
+                {node.status === "stalled" && <AlertTriangle className="h-4 w-4 text-red-500" />}
+                {node.status === "blocked" && <Lock className="h-4 w-4 text-red-500" />}
+                {node.status === "waiting" && <Loader className="h-4 w-4 text-blue-500 animate-spin" />}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-medium">{node.state}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
-          <div className="font-medium text-xs leading-tight mb-1.5">{node.name}</div>
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm leading-tight">{node.name}</h4>
 
-          {/* Compact stats */}
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1.5">
-            <span>Q:{node.queueSize}</span>
-            <span>{node.throughput}/min</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs text-slate-600">
+                <span>Queue</span>
+                <Badge variant="outline" className="text-xs">{node.queueSize} items</Badge>
+              </div>
+              <div className="flex items-center justify-between text-xs text-slate-600">
+                <span>Throughput</span>
+                <span className="font-medium">{node.throughput}/min</span>
+              </div>
+            </div>
+
+            {node.checkpoints && node.checkpoints.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {node.checkpoints.map((cp: any) => (
+                  <Badge key={cp} variant="outline" className="text-xs px-1.5 py-0.5 bg-blue-50 text-blue-700 border-blue-200">
+                    <CheckCircle className="h-2.5 w-2.5 mr-1" />
+                    {cp.split("_")[0]}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {(node.waitingFor || node.blockedBy) && (
+              <div className="text-xs bg-amber-50 text-amber-700 rounded-lg px-2 py-1 truncate">
+                <Clock className="h-2.5 w-2.5 inline mr-0.5" />
+                {node.waitingFor || node.blockedBy}
+              </div>
+            )}
+
+            {node.stalledReason && (
+              <div className="text-xs bg-red-50 text-red-700 rounded-lg px-2 py-1 truncate">
+                Stalled: {node.stalledReason} ({Math.floor(node.stalledFor / 60)}m)
+              </div>
+            )}
+
+            {node.stateOwnership && node.stateOwnership.length > 0 && (
+              <div className="text-xs text-purple-600 truncate">
+                <Lock className="h-2.5 w-2.5 inline mr-0.5" />
+                {node.stateOwnership.join(", ")}
+              </div>
+            )}
           </div>
-
-          {/* Status info */}
-          {(node.waitingFor || node.blockedBy) && (
-            <div className="text-xs bg-amber-50 text-amber-700 rounded px-1.5 py-0.5 truncate">
-              <Clock className="h-2.5 w-2.5 inline mr-0.5" />
-              {node.waitingFor || node.blockedBy}
-            </div>
-          )}
-
-          {node.stalledReason && (
-            <div className="text-xs bg-red-50 text-red-700 rounded px-1.5 py-0.5 truncate">
-              Stalled: {node.stalledReason} ({Math.floor(node.stalledFor / 60)}m)
-            </div>
-          )}
-
-          {node.stateOwnership && node.stateOwnership.length > 0 && (
-            <div className="text-xs text-purple-600 mt-1 truncate">
-              <Lock className="h-2.5 w-2.5 inline mr-0.5" />
-              {node.stateOwnership.join(", ")}
-            </div>
-          )}
         </div>
       </div>
     )
@@ -599,10 +636,10 @@ export function MultiAgentDebugger() {
       const toNode = nodes.find((n: any) => n.id === edge.to)
       if (!fromNode || !toNode) return null
 
-      const fromX = fromNode.position.x + 90
-      const fromY = fromNode.position.y + 50
-      const toX = toNode.position.x + 90
-      const toY = toNode.position.y + 50
+      const fromX = fromNode.position.x + 110
+      const fromY = fromNode.position.y + 70
+      const toX = toNode.position.x + 110
+      const toY = toNode.position.y + 70
 
       const isDeadlock = (edge.from === "vuln-scanner" && edge.to === "compliance-checker") ||
                          (edge.from === "compliance-checker" && edge.to === "vuln-scanner")
@@ -620,14 +657,14 @@ export function MultiAgentDebugger() {
         >
           <defs>
             <marker
-              id={`arrow-${index}`}
-              markerWidth="8"
-              markerHeight="6"
-              refX="7"
-              refY="3"
+              id={`arrowhead-${index}`}
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 8 3, 0 6" fill={isDeadlock ? "#ef4444" : "#94a3b8"} />
+              <polygon points="0 0, 10 3.5, 0 7" fill={isDeadlock ? "#ef4444" : "#6366f1"} />
             </marker>
           </defs>
           <line
@@ -635,10 +672,10 @@ export function MultiAgentDebugger() {
             y1={fromY - Math.min(fromY, toY) + 20}
             x2={toX - Math.min(fromX, toX) + 20}
             y2={toY - Math.min(fromY, toY) + 20}
-            stroke={isDeadlock ? "#ef4444" : "#cbd5e1"}
-            strokeWidth="2"
-            strokeDasharray={isDeadlock ? "6,3" : "4,3"}
-            markerEnd={`url(#arrow-${index})`}
+            stroke={isDeadlock ? "#ef4444" : "#6366f1"}
+            strokeWidth="3"
+            strokeDasharray={isDeadlock ? "8,4" : "5,5"}
+            markerEnd={`url(#arrowhead-${index})`}
             className={isDeadlock ? "animate-pulse" : ""}
           />
         </svg>
@@ -767,7 +804,7 @@ export function MultiAgentDebugger() {
               <div
                 ref={dagContainerRef}
                 className="relative w-full h-full p-6"
-                style={{ cursor: isDragging ? "grabbing" : "default", minHeight: "700px", minWidth: "900px" }}
+                style={{ cursor: isDragging ? "grabbing" : "default", minHeight: "700px", minWidth: "1200px" }}
               >
                 {currentDAG && renderDAGEdges(currentDAG.edges, currentDAG.nodes)}
                 {currentDAG && currentDAG.nodes.map((node: any) => renderDAGNode(node))}
